@@ -52,10 +52,10 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
 
 
     player.onUpdate(() => {
-        debug.log(velocity)
+        // debug.log(velocity)
         if (player.pos.y < 100) {
             player.move(0, 200);
-            debug.log('done')
+           // debug.log('done')
         }
         if (velocity >= 0.5 && velocity <= 2) {
             velocity += 0.001;
