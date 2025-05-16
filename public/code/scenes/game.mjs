@@ -1,10 +1,16 @@
 import kaboom from "kaboom";
 
-export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficulty = "normal", impulso = 1, slowmode = true) {
+export default async function Game(velocity = 0.5, spawn = 1, coinsSpawn = 1, difficulty = "normal", impulso = 1, slowmode = true) {
     const padding = 20;
     var currentScore = 0;
     var currentCoins = 0;
     var SPEED = 400;
+
+    let back = add([
+        sprite("background", { width: width(), height: height() }),
+        layer("bg"),
+        fixed(),
+    ]);
 
     const player = add([
         sprite(localStorage.getItem("skin")),
@@ -12,18 +18,21 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         area(),
         body(),
         offscreen({
-            destroy: true
+            destroy: false,
+            distance: 0
         }),
         z(1),
-        scale(0.7),
-        "player"
+        scale(0.3),
+        "player",
+        layer("game")
     ]);
 
     add([
         sprite("coin"),
         pos(padding, padding),
         z(3),
-        scale(0.1)
+        scale(0.25),
+        fixed()
     ]);
 
     const coins = add([
@@ -31,14 +40,16 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
             size: 18
         }),
         pos(padding + 30, padding + 3),
-        area()
+        area(),
+        fixed()
     ]);
 
     add([
         sprite("clock"),
         pos(padding, padding + 30),
         z(3),
-        scale(0.3)
+        scale(0.3),
+        fixed()
     ]);
 
     const score = add([
@@ -47,19 +58,21 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         }),
         pos(padding + 30, padding + 35),
         area(),
-        "score"
+        "score",
+        fixed()
     ]);
 
 
     player.onUpdate(() => {
-        // debug.log(velocity)
         if (player.pos.y < 100) {
             player.move(0, 200);
-           // debug.log('done')
         }
-        if (velocity >= 0.5 && velocity <= 2) {
-            velocity += 0.001;
-        } else if (velocity <= 0.1) return velocity += 0.5; else if (velocity >= 2 && velocity <= 3) return velocity += 0.000001;
+
+        if (velocity >= 1.5) {
+            velocity += 0.0001;
+        } else if (velocity >= 5) { } else {
+            velocity += 0.5;
+        }
     });
 
 
@@ -111,12 +124,13 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
             }
         });
     }
+
     function spawnImpulso() {
         const recta = add([
             pos(rand(width()), height()),
             sprite("impulse"),
             z(3),
-            scale(0.1),
+            scale(0.15),
             outline(2),
             area(),
             color(),
@@ -126,6 +140,7 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
             "impulso"
         ]);
         onUpdate(() => {
+            // recta.rotateBy(100);
             recta.move(0, rand(-150, -100) * (velocity / spawn) * impulso);
         });
         wait(rand(10, 60) * spawn, spawnImpulso);
@@ -140,7 +155,7 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         const recta = add([
             pos(rand(width()), height()),
             sprite("coin"),
-            scale(0.15),
+            scale(0.3),
             area(),
             offscreen({
                 destroy: true,
@@ -174,7 +189,7 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
             scale(rand(0.5, 0.8))
         ]);
         onUpdate(() => {
-            recta.move(0, -150 * (velocity) * impulso);
+            recta.move(0, -200 * (velocity) * impulso);
         });
         wait(rand(0.9, 2) / spawn, spawnRedRect);
         recta.onUpdate(() => {
@@ -233,7 +248,7 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         const recta = add([
             pos(rand(width()), height()),
             sprite("cloud"),
-            scale(0.3),
+            scale(0.5),
             area(),
             offscreen({
                 destroy: true,
@@ -266,10 +281,7 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         if (impulso > 1.8) {
             currentScore += 50
             shake(0.5)
-            play("ui:click", {
-                volume: 0.6,
-                detune: randi(0, 12) * 100
-            });
+
             impulso -= 0.5;
         } else {
 
@@ -291,7 +303,12 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
         burp();
         destroy(player);
         destroy(re);
-
+        setCursor("default");
+        wait(2, () => {
+            go("menu", {
+                score: currentScore
+            });
+        });
     });
 
     onCollide("Coins", "Rectred", (c) => {
@@ -300,31 +317,24 @@ export default function Game(velocity = 0.3, spawn = 1, coinsSpawn = 1, difficul
     });
 
     player.onCollide("Rect", (c) => {
-        // currentScore++;
-        score.text = currentScore.toFixed();
+        currentScore++;
+        score.text = currentScore;
         if (currentScore > localStorage.getItem("score")) {
-            localStorage.setItem("score", currentScore.toFixed());
+            localStorage.setItem("score", currentScore);
             score.color = GREEN;
         }
         destroy(c);
     });
 
     player.onUpdate(() => {
-        currentScore+=velocity;
-        score.text = currentScore.toFixed();
+        currentScore++;
+        score.text = currentScore;
         if (currentScore > localStorage.getItem("score." + difficulty)) {
-            localStorage.setItem("score." + difficulty, currentScore.toFixed());
+            localStorage.setItem("score." + difficulty, currentScore);
             score.color = GREEN;
         }
     });
-    player.onDestroy(() => {
-        setCursor("default");
-        wait(2, () => {
-            go("menu", {
-                score: currentScore
-            });
-        });
-    })
+
     player.onCollide("Coins", (c) => {
         currentCoins++;
         coins.text = currentCoins;

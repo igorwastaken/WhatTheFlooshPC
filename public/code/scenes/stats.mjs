@@ -6,6 +6,11 @@ function formatCompactNumber(number) {
 }
 
 export default function Stats() {
+  let back = add([
+      sprite("background", {width: width(), height: height()}),
+      layer("bg"),
+      fixed(),
+  ]);
   const padding = 20;
   const maxScoreEasy = formatCompactNumber(localStorage.getItem("score.easy"));
   const maxScoreNormal = formatCompactNumber(localStorage.getItem("score.normal"));
@@ -98,6 +103,7 @@ export default function Stats() {
       rotate(rand(0, 360)),
       "stars",
       z(0.5),
+      layer("bg")
     ]);
   }
 }

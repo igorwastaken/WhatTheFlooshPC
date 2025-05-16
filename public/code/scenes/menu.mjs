@@ -10,10 +10,14 @@ function formatCompactNumber(number) {
 export default function MainMenu() {
   const padding = 20; // Define o valor do padding
   const maxScore = formatCompactNumber(localStorage.getItem("score"));
-
+  
   var afkTimeout = 0;
   var selectedButtonIndex = 0;
-
+  let back = add([
+      sprite("background", {width: width(), height: height()}),
+      layer("bg"),
+      fixed(),
+  ]);
   // Main title
   add([
     text(`What The Floosh Game`, {
@@ -21,7 +25,7 @@ export default function MainMenu() {
       width: width() - padding * 2, // Reduz a largura do texto pelo padding
       align: "center",
     }),
-    pos(width() / 2, height() * 0.3 - padding), // Ajusta a posição vertical pelo padding
+    pos(width() / 2, height() * 0.35 - padding), // Ajusta a posição vertical pelo padding
     anchor("center"),
     z(3),
   ]);
@@ -29,7 +33,7 @@ export default function MainMenu() {
 add([
   sprite("coin"), 
   pos(padding, padding), 
-  scale(0.1),
+  scale(0.25),
   "coins",
   z(3),
 ]);
@@ -45,7 +49,7 @@ add([
 
   // Menu buttons
   const buttons = [
-    { label: "Jogar", scene: "game:normal", y: height() * 0.4 },
+    { label: "Jogar", scene: "difficulty", y: height() * 0.4 },
     { label: "Créditos", scene: "credits", y: height() * 0.5 },
     { label: "Estatísticas", scene: "stats", y: height() * 0.6 },
   ];
@@ -132,7 +136,7 @@ add([
     onUpdate(() => {
       recta.move(rand(-150, -100), 0);
     });
-    wait(1, spawnClouds);
+    wait(0.3, spawnClouds);
   }
 
   const currentYear = new Date().getUTCFullYear();
@@ -147,16 +151,38 @@ add([
   ]);
 
   // Settings button
-  add([
+ /* add([
     sprite("settings"),
     pos(width() - padding - 30, height() - padding - 30),
     scale(0.5),
     area(),
     "settings",
-  ]);
+  ]);*/
+  function spawnSnowflake() {
+    const snowflake = add([
+      pos(rand(0, width()), 0), // Começa no topo da tela em uma posição horizontal aleatória
+      rect(4, 4), // Cada floco é um quadrado branco de 4x4 pixels (você pode mudar o tamanho)
+      color(255, 255, 255), // Cor branca para os flocos de neve
+      opacity(0.8), // Transparência para suavizar o visual
+      move(DOWN, rand(20, 60)), // Velocidade vertical aleatória para cada floco
+      "snowflake",
+    ]);
 
+    // Anima o floco para que ele também tenha movimento horizontal leve
+    snowflake.onUpdate(() => {
+      snowflake.move(rand(-1, 1), 0); // Move um pouco para a esquerda ou direita para um efeito mais natural
+      if (snowflake.pos.y > height()) {
+        snowflake.pos.y = 0; // Reposiciona o floco no topo ao sair da tela
+        snowflake.pos.x = rand(0, width());
+      }
+    });
+  }
+
+  // Configura um loop para gerar novos flocos de neve constantemente
+  loop(0.1, () => {
+    spawnSnowflake();
+  });
   spawnClouds();
-
   var clicked = 0;
   onClick("ee", () => {
     clicked++;
@@ -165,7 +191,7 @@ add([
       // window.open("https://apenasigordev.github.io/FastPungentFactors/");
     }
   });
-
+ 
   onClick("settings", () => {
     go("settings");
     play("ui:click");
@@ -188,14 +214,14 @@ add([
       go("afk");
     }
   });
-  /*add([
+  add([
     sprite("instagram"),
     pos(width() / 2, height() * 0.7),
     scale(0.4),
     area(),
     anchor("center"),
     "social:Instagram",
-  ]);*/
+  ]);
 
   const socials = [
     {

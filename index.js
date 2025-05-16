@@ -8,13 +8,10 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
-    icon: 'public/sprites/bean.ico',
+    icon: 'public/sprites/bean.png',
     autoHideMenuBar: true,
     // fullscreen: true,
-    
     webPreferences: {
-      
-      devTools: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })

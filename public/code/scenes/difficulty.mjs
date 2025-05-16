@@ -1,6 +1,11 @@
 import kaboom from "kaboom";
 
 export default function Difficulty() {
+  let back = add([
+      sprite("background", {width: width(), height: height()}),
+      layer("bg"),
+      fixed(),
+  ]);
   const padding = 20; // Define o valor do padding
   const stars = [];
   const starCount = 50;
@@ -14,6 +19,7 @@ export default function Difficulty() {
       scale(rand(0.1, 0.3)),
       rotate(rand(0, 360)),
       "star",
+      layer("bg")
     ]));
   }
 
